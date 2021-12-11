@@ -51,7 +51,7 @@ class GPTSoftPromptMixin:
 
         return super().forward(*args, **kwargs)
 
-    @torch.no_grad()
+    @torch.inference_mode()
     def generate(self, *args, **kwargs):
         # Alow setting input_ids as positional arg 0
         if kwargs.get('input_ids') is None:
@@ -70,6 +70,19 @@ class GPTSoftPromptMixin:
         args = ()
 
         return super().generate(*args, **kwargs)
+    
+    @torch.inference_mode()
+    def sample(self, *args, **kwargs):
+        # Alow setting input_ids as positional arg 0
+        if kwargs.get('input_ids') is None:
+            kwargs['input_ids'] = args[0]
+
+        # This fixes CUDA for some reason
+        kwargs['input_ids'] = kwargs['input_ids'].to(self.device)
+        # Todo: ban special logits from output
+        args = ()
+
+        return super().sample(*args, **kwargs)
 
     @classmethod
     def from_pretrained(cls, pretrained_model_name_or_path, **kwargs):
