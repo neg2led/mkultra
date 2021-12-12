@@ -187,7 +187,7 @@ class SoftPrompt():
                   if x._metadata['uuid'] == x._metadata['uuid']]
 
         if len(old_sp) != 0:
-            sp._metadata['uuid'] = str(uuid.uuid4())
+            return old_sp
 
         SoftPrompt._register_soft_prompt(sp)
         return sp
