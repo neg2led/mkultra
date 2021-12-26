@@ -1,16 +1,6 @@
-from transformers import GPT2LMHeadModel, GPTNeoForCausalLM, GPTJForCausalLM, TextGenerationPipeline
+from transformers import GPT2LMHeadModel, GPTNeoForCausalLM, GPTJForCausalLM, AutoModelForCausalLM
 from mkultra.soft_prompt import SoftPrompt
 import torch
-
-EXTRA_ALLOWED_MODELS = [
-    "GPT2SoftPromptLM",
-    "GPTNeoSoftPromptLM",
-    "GPTJSoftPromptLM"
-    ]
-
-for model in EXTRA_ALLOWED_MODELS:
-    if model not in TextGenerationPipeline.ALLOWED_MODELS:
-        TextGenerationPipeline.ALLOWED_MODELS.append(model)
 
 class GPTSoftPromptMixin:
     def replace_special_tokens(self, input_ids):
@@ -103,5 +93,9 @@ class GPTNeoSoftPromptLM(GPTSoftPromptMixin, GPTNeoForCausalLM):
         super().__init__(config)
 
 class GPTJSoftPromptLM(GPTSoftPromptMixin, GPTJForCausalLM):
+    def __init__(self, config):
+        super().__init__(config)
+
+class AutoModelSoftPromptLM(GPTSoftPromptMixin, AutoModelForCausalLM):
     def __init__(self, config):
         super().__init__(config)
