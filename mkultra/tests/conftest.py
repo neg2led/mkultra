@@ -1,9 +1,9 @@
-from transformers import GPT2TokenizerFast
-from mkultra.tuning import GPT2PromptTuningLM
-from mkultra.soft_prompt import SoftPrompt
 import pytest
 from mkultra.inference import GPT2SoftPromptLM
+from mkultra.soft_prompt import SoftPrompt
 from mkultra.tokenizers import GPT2SPTokenizerFast
+from mkultra.tuning import GPT2PromptTuningLM
+from transformers import GPT2TokenizerFast
 
 inf_model = GPT2SoftPromptLM.from_pretrained("gpt2")
 inf_tokenizer = GPT2SPTokenizerFast.from_pretrained("gpt2")

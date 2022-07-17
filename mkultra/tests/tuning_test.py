@@ -1,6 +1,6 @@
+import torch
 from mkultra.soft_prompt import SoftPrompt
 from transformers import Adafactor
-import torch
 
 
 def test_optimization(tuning_resources):

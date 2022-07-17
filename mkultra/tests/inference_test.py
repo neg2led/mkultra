@@ -1,6 +1,6 @@
-from transformers.pipelines import pipeline
-from mkultra.soft_prompt import SoftPrompt
 import torch
+from mkultra.soft_prompt import SoftPrompt
+from transformers.pipelines import pipeline
 
 
 def test_replace_special_tokens(inference_resources):

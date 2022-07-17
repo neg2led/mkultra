@@ -1,8 +1,7 @@
-from transformers.pipelines import pipeline
-from mkultra.soft_prompt import SoftPrompt
 from mkultra.inference import GPT2SoftPromptLM
+from mkultra.soft_prompt import SoftPrompt
 from mkultra.tuning import GPT2PromptTuningLM
-import torch
+from transformers.pipelines import pipeline
 
 
 def test_cuda_inference(inference_resources):

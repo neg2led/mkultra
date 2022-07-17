@@ -1,6 +1,7 @@
-from transformers import GPT2LMHeadModel, GPTNeoForCausalLM, GPTJForCausalLM, AutoModelForCausalLM
-from mkultra.soft_prompt import SoftPrompt
 import torch
+from transformers import AutoModelForCausalLM, GPT2LMHeadModel, GPTJForCausalLM, GPTNeoForCausalLM
+
+from mkultra.soft_prompt import SoftPrompt
 
 
 class GPTSoftPromptMixin:

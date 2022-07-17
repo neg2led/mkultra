@@ -1,7 +1,7 @@
-from transformers import Trainer
-from transformers import Adafactor
 import random
+
 import torch
+from transformers import Adafactor, Trainer
 
 
 class WorldInfoTrainer:
@@ -158,8 +158,9 @@ class SoftPromptTrainer:
         return os.path.basename(os.path.normpath(self.project_dir))
 
     def _maybe_create_project_directory(self):
-        from mkultra.soft_prompt import SoftPrompt
         import os
+
+        from mkultra.soft_prompt import SoftPrompt
 
         # Look for existing project directory
         try:
@@ -169,8 +170,9 @@ class SoftPromptTrainer:
             print(f"Found project directory at {self.project_dir}")
 
     def _load_latest_checkpoint(self):
-        from mkultra.soft_prompt import SoftPrompt
         import os
+
+        from mkultra.soft_prompt import SoftPrompt
 
         # Look for existing checkpoints
         project_files = os.listdir(self.project_dir)
@@ -192,6 +194,7 @@ class SoftPromptTrainer:
     def _get_tokens(self):
         import json
         import os
+
         from transformers import GPT2TokenizerFast
 
         tokens = None
@@ -231,8 +234,8 @@ class SoftPromptTrainer:
         return blocks
 
     def _get_block_order(self):
-        import os
         import json
+        import os
 
         block_order_path = os.path.join(self.project_dir, "block_order.json")
 
@@ -252,13 +255,15 @@ class SoftPromptTrainer:
         return block_order
 
     def train(self, num_training_steps=None):
-        from tqdm import tqdm
-        from mkultra.soft_prompt import SoftPrompt
-        import random
-        import torch
-        import os
         import json
         import math
+        import os
+        import random
+
+        import torch
+        from tqdm import tqdm
+
+        from mkultra.soft_prompt import SoftPrompt
 
         # Train for one epoch by default
         if num_training_steps is None:
@@ -348,8 +353,8 @@ class SoftPromptTrainer:
         sp.to_file(os.path.join(self.project_dir, self._filename_for_checkpoint(self.sp_step)))
 
     def evaluate(self, eval_percentage=0.1):
-        from tqdm import tqdm
         import torch
+        from tqdm import tqdm
 
         self.model.eval()
         eval_steps = round(eval_percentage * len(self.blocks))

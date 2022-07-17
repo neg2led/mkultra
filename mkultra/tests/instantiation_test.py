@@ -1,6 +1,6 @@
 from mkultra.inference import GPT2SoftPromptLM
-from mkultra.tokenizers import GPT2SPTokenizerFast
 from mkultra.soft_prompt import SoftPrompt
+from mkultra.tokenizers import GPT2SPTokenizerFast
 
 
 def test_instantiate_multiple_objects():

@@ -1,4 +1,5 @@
 from transformers import GPT2Tokenizer, GPT2TokenizerFast
+
 from mkultra.soft_prompt import SoftPrompt
 
 
@@ -12,7 +13,7 @@ class GPT2SPTokenizerFast(GPT2TokenizerFast):
         bos_token="<|endoftext|>",
         eos_token="<|endoftext|>",
         add_prefix_space=False,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
             vocab_file,
@@ -37,7 +38,7 @@ class GPT2SPTokenizer(GPT2Tokenizer):
         bos_token="<|endoftext|>",
         eos_token="<|endoftext|>",
         add_prefix_space=False,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
             vocab_file,

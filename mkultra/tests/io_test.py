@@ -1,7 +1,8 @@
-import os
-from mkultra.soft_prompt import SoftPrompt
-import torch
 import json
+import os
+
+import torch
+from mkultra.soft_prompt import SoftPrompt
 
 
 def test_json(inference_resources):
