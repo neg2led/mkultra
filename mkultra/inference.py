@@ -2,6 +2,7 @@ from transformers import GPT2LMHeadModel, GPTNeoForCausalLM, GPTJForCausalLM, Au
 from mkultra.soft_prompt import SoftPrompt
 import torch
 
+
 class GPTSoftPromptMixin:
     def replace_special_tokens(self, input_ids):
         # Embed everything normally first
@@ -14,28 +15,28 @@ class GPTSoftPromptMixin:
             # Replace special tokens with soft prompts
             for t in range(n_tokens):
                 # Check each id for a special token
-                input_id = input_ids[b,t].item()
+                input_id = input_ids[b, t].item()
                 sp = SoftPrompt.from_input_id(input_id)
                 # If we find one, replace special token and padding with soft prompt
                 if sp:
                     replacement = sp.get_inputs_embeds().to(self.device).clone().unsqueeze(0)
-                    inputs_embeds[b,t:t+len(sp),:] = replacement[0,:,:]
+                    inputs_embeds[b, t : t + len(sp), :] = replacement[0, :, :]
 
         return inputs_embeds
 
     def forward(self, *args, **kwargs):
         # Alow setting input_ids as positional arg 0
-        if kwargs.get('input_ids') is None:
-            kwargs['input_ids'] = args[0]
+        if kwargs.get("input_ids") is None:
+            kwargs["input_ids"] = args[0]
 
-        input_ids = kwargs.get('input_ids').to(self.device)
+        input_ids = kwargs.get("input_ids").to(self.device)
 
         if input_ids is None:
             # User is using inputs_embeds, nothing more we can do
             return super().forward(*args, **kwargs)
 
-        kwargs['input_ids'] = None
-        kwargs['inputs_embeds'] = self.replace_special_tokens(input_ids)
+        kwargs["input_ids"] = None
+        kwargs["inputs_embeds"] = self.replace_special_tokens(input_ids)
 
         args = ()
 
@@ -44,31 +45,31 @@ class GPTSoftPromptMixin:
     @torch.inference_mode()
     def generate(self, *args, **kwargs):
         # Alow setting input_ids as positional arg 0
-        if kwargs.get('input_ids') is None:
-            kwargs['input_ids'] = args[0]
+        if kwargs.get("input_ids") is None:
+            kwargs["input_ids"] = args[0]
 
         # This fixes CUDA for some reason
-        kwargs['input_ids'] = kwargs['input_ids'].to(self.device)
+        kwargs["input_ids"] = kwargs["input_ids"].to(self.device)
 
         # Ban all special logits from output
-        bad_words_ids = kwargs.get('bad_words_ids', list())
+        bad_words_ids = kwargs.get("bad_words_ids", list())
 
         for id in SoftPrompt.get_special_token_ids():
             bad_words_ids.append([id])
-        kwargs['bad_words_ids'] = bad_words_ids
+        kwargs["bad_words_ids"] = bad_words_ids
 
         args = ()
 
         return super().generate(*args, **kwargs)
-    
+
     @torch.inference_mode()
     def sample(self, *args, **kwargs):
         # Alow setting input_ids as positional arg 0
-        if kwargs.get('input_ids') is None:
-            kwargs['input_ids'] = args[0]
+        if kwargs.get("input_ids") is None:
+            kwargs["input_ids"] = args[0]
 
         # This fixes CUDA for some reason
-        kwargs['input_ids'] = kwargs['input_ids'].to(self.device)
+        kwargs["input_ids"] = kwargs["input_ids"].to(self.device)
         # Todo: ban special logits from output
         args = ()
 
@@ -84,17 +85,21 @@ class GPTSoftPromptMixin:
         input_ids = input_ids.to(self.device)
         return super().prepare_inputs_for_generation(input_ids, past, *args, **kwargs)
 
+
 class GPT2SoftPromptLM(GPTSoftPromptMixin, GPT2LMHeadModel):
     def __init__(self, config):
         super().__init__(config)
+
 
 class GPTNeoSoftPromptLM(GPTSoftPromptMixin, GPTNeoForCausalLM):
     def __init__(self, config):
         super().__init__(config)
 
+
 class GPTJSoftPromptLM(GPTSoftPromptMixin, GPTJForCausalLM):
     def __init__(self, config):
         super().__init__(config)
+
 
 class AutoModelSoftPromptLM(GPTSoftPromptMixin, AutoModelForCausalLM):
     def __init__(self, config):

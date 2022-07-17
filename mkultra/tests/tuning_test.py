@@ -2,6 +2,7 @@ from mkultra.soft_prompt import SoftPrompt
 from transformers import Adafactor
 import torch
 
+
 def test_optimization(tuning_resources):
     # Arrange
     model, tokenizer = tuning_resources
@@ -17,6 +18,7 @@ def test_optimization(tuning_resources):
 
     # Assert
     # Just make sure nothing breaks
+
 
 def test_optimize_sp_from_string(tuning_resources):
     # Arrange
@@ -35,6 +37,7 @@ def test_optimize_sp_from_string(tuning_resources):
     # Assert
     # Just make sure nothing breaks
 
+
 def test_cat_learned_embedding(tuning_resources):
     model, tokenizer = tuning_resources
 
@@ -43,13 +46,13 @@ def test_cat_learned_embedding(tuning_resources):
     b = " 4 5 6"
     a_b = a + b
 
-    sp = SoftPrompt.from_string(a,model=model, tokenizer=tokenizer)
+    sp = SoftPrompt.from_string(a, model=model, tokenizer=tokenizer)
     model.set_soft_prompt(sp)
 
     input_ids = tokenizer(b, return_tensors="pt").input_ids
     labels = input_ids.clone().detach()
     exp_inputs_embeds = model.get_input_embeddings()(tokenizer(a_b, return_tensors="pt").input_ids)
-    exp_labels = torch.cat([torch.full((1,len(sp)), -100), labels], dim=1)
+    exp_labels = torch.cat([torch.full((1, len(sp)), -100), labels], dim=1)
 
     # Act
     inputs_embeds = model._cat_learned_embedding_to_input(input_ids)

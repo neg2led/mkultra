@@ -1,6 +1,7 @@
 from transformers import GPT2Tokenizer, GPT2TokenizerFast
 from mkultra.soft_prompt import SoftPrompt
 
+
 class GPT2SPTokenizerFast(GPT2TokenizerFast):
     def __init__(
         self,
@@ -24,6 +25,7 @@ class GPT2SPTokenizerFast(GPT2TokenizerFast):
             **kwargs,
         )
         SoftPrompt._register_tokenizer(self)
+
 
 class GPT2SPTokenizer(GPT2Tokenizer):
     def __init__(

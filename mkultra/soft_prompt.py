@@ -6,7 +6,8 @@ from typing import Dict, Any, Union
 import pickle
 import base64
 
-class SoftPrompt():
+
+class SoftPrompt:
     """
     A soft prompt.
 
@@ -23,6 +24,7 @@ class SoftPrompt():
                  key - a special input_id
                  value - a SoftPrompt corresponding to that input_id
     """
+
     # Token that represents a generic soft prompt.
     GENERIC_SOFT_TOKEN_STR = "<@>"
 
@@ -38,10 +40,10 @@ class SoftPrompt():
     # List of compatible models.
     _models = list()
 
-    def __init__(self, tensor: torch.Tensor, metadata: Dict[str, Any]=None):
+    def __init__(self, tensor: torch.Tensor, metadata: Dict[str, Any] = None):
         self._tensor = tensor
 
-        #if len(self._tensor.shape) == 2:
+        # if len(self._tensor.shape) == 2:
         #    self._tensor.unsqueeze_(0)
 
         self._metadata = metadata
@@ -50,11 +52,13 @@ class SoftPrompt():
         return self._tensor.shape[-2]
 
     def __str__(self):
-        return (f"{self._metadata['name']} ({datetime.datetime.fromtimestamp(self._metadata['epoch'])})\n"
-                f"Length: {len(self)}\n"
-                f"UUID:   {self._metadata['uuid']}\n"
-                f"Description:\n"
-                f"{self._metadata['description']}")
+        return (
+            f"{self._metadata['name']} ({datetime.datetime.fromtimestamp(self._metadata['epoch'])})\n"
+            f"Length: {len(self)}\n"
+            f"UUID:   {self._metadata['uuid']}\n"
+            f"Description:\n"
+            f"{self._metadata['description']}"
+        )
 
     def __add__(self, other: str):
         return self.get_tag_str() + other
@@ -73,20 +77,20 @@ class SoftPrompt():
         if self._metadata is None:
             self._metadata = dict()
 
-        if self._metadata.get('name') is None:
-            self._metadata['name'] = "Untitled"
+        if self._metadata.get("name") is None:
+            self._metadata["name"] = "Untitled"
 
-        if self._metadata.get('uuid') is None:
-            self._metadata['uuid'] = str(uuid.uuid4())
+        if self._metadata.get("uuid") is None:
+            self._metadata["uuid"] = str(uuid.uuid4())
 
-        if self._metadata.get('description') is None:
-            self._metadata['description'] = "No description given."
+        if self._metadata.get("description") is None:
+            self._metadata["description"] = "No description given."
 
-        if self._metadata.get('epoch') is None:
-            self._metadata['epoch'] = datetime.datetime.now().timestamp()
+        if self._metadata.get("epoch") is None:
+            self._metadata["epoch"] = datetime.datetime.now().timestamp()
 
     @staticmethod
-    def _register_soft_prompt(sp: 'SoftPrompt'):
+    def _register_soft_prompt(sp: "SoftPrompt"):
         SoftPrompt._soft_prompts.append(sp)
 
         # We can wait until a suitable tokenizer gets created
@@ -136,8 +140,7 @@ class SoftPrompt():
 
     @staticmethod
     def get_special_token_strs():
-        """Returns the list of special token strings for all loaded soft prompts.
-        """
+        """Returns the list of special token strings for all loaded soft prompts."""
         special_tokens = list()
         special_tokens.append(SoftPrompt.GENERIC_SOFT_TOKEN_STR)
 
@@ -148,8 +151,7 @@ class SoftPrompt():
 
     @staticmethod
     def get_special_token_ids():
-        """Returns the list of special token ids.
-        """
+        """Returns the list of special token ids."""
         special_ids = list()
         special_ids.append(SoftPrompt._tokenizers[0].encode(SoftPrompt.GENERIC_SOFT_TOKEN_STR)[0])
         special_ids.extend(SoftPrompt._id_lut.keys())
@@ -158,33 +160,29 @@ class SoftPrompt():
 
     @staticmethod
     def from_file(path: str):
-        """Loads a soft prompt from a file.
-        """
-        with open(path, mode='r') as file:
+        """Loads a soft prompt from a file."""
+        with open(path, mode="r") as file:
             j_str = file.read()
             return SoftPrompt.from_json(j_str)
 
     def to_file(self, path):
-        """Save a soft prompt to a path.
-        """
-        with open(path, mode='w') as file:
+        """Save a soft prompt to a path."""
+        with open(path, mode="w") as file:
             j_str = self.to_json()
             file.write(j_str)
 
     @staticmethod
     def from_json(string: str):
-        """Loads a soft prompt from a serialization.
-        """
+        """Loads a soft prompt from a serialization."""
         j_dict = json.loads(string)
 
-        metadata = j_dict['metadata']
-        tensor = pickle.loads(base64.b64decode(j_dict['tensor'].encode('ascii')))
+        metadata = j_dict["metadata"]
+        tensor = pickle.loads(base64.b64decode(j_dict["tensor"].encode("ascii")))
         sp = SoftPrompt(tensor, metadata)
         sp._check_integrity()
 
         # Check if this soft prompt's uuid already exists
-        old_sp = [x for x in SoftPrompt._soft_prompts
-                  if x._metadata['uuid'] == x._metadata['uuid']]
+        old_sp = [x for x in SoftPrompt._soft_prompts if x._metadata["uuid"] == x._metadata["uuid"]]
 
         if len(old_sp) != 0:
             return old_sp[0]
@@ -197,8 +195,8 @@ class SoftPrompt():
         This can be used to embed the SoftPrompt inside some other file.
         """
         j_dict = dict()
-        j_dict['metadata'] = self._metadata
-        j_dict['tensor'] = base64.b64encode(pickle.dumps(self._tensor,protocol=4)).decode('ascii')
+        j_dict["metadata"] = self._metadata
+        j_dict["tensor"] = base64.b64encode(pickle.dumps(self._tensor, protocol=4)).decode("ascii")
         return json.dumps(j_dict)
 
     @staticmethod
@@ -212,23 +210,20 @@ class SoftPrompt():
         return SoftPrompt._id_lut.get(input_id)
 
     @staticmethod
-    def from_inputs_embeds(inputs_embeds: torch.Tensor, metadata: Dict[str, Any]=None):
-        """Creates a soft prompt from an embedding tensor.
-        """
+    def from_inputs_embeds(inputs_embeds: torch.Tensor, metadata: Dict[str, Any] = None):
+        """Creates a soft prompt from an embedding tensor."""
         sp = SoftPrompt(tensor=inputs_embeds.clone(), metadata=metadata)
         sp._check_integrity()
         SoftPrompt._register_soft_prompt(sp)
         return sp
 
     @staticmethod
-    def from_tuning_model(model, metadata: Dict[str, Any]=None):
-        """Extracts a soft prompt from a PromptTuningModel.
-        """
-        return SoftPrompt.from_inputs_embeds(
-            inputs_embeds=model.get_soft_params(), metadata=metadata)
+    def from_tuning_model(model, metadata: Dict[str, Any] = None):
+        """Extracts a soft prompt from a PromptTuningModel."""
+        return SoftPrompt.from_inputs_embeds(inputs_embeds=model.get_soft_params(), metadata=metadata)
 
     @staticmethod
-    def from_string(string: str, model, tokenizer, metadata: Dict[str, Any]=None):
+    def from_string(string: str, model, tokenizer, metadata: Dict[str, Any] = None):
         """Creates a soft prompt by tokenizing and embedding a string.
 
         This is useful for testing as it is repeatable.
@@ -238,8 +233,8 @@ class SoftPrompt():
 
         if metadata is None:
             metadata = dict()
-            metadata['name'] = "FromString"
-            metadata['description'] = f"Created from string '{string}'"
+            metadata["name"] = "FromString"
+            metadata["description"] = f"Created from string '{string}'"
 
         inputs_embeds = model.get_input_embeddings()(tokens)
         return SoftPrompt.from_inputs_embeds(inputs_embeds=inputs_embeds, metadata=metadata)
@@ -252,17 +247,15 @@ class SoftPrompt():
         """
         tag_str = self._unique_token_str()
 
-        for _ in range(len(self)-1):
+        for _ in range(len(self) - 1):
             tag_str += SoftPrompt.GENERIC_SOFT_TOKEN_STR
 
         return tag_str
 
     def get_inputs_embeds(self):
-        """Returns the embedding tensor of this soft prompt.
-        """
+        """Returns the embedding tensor of this soft prompt."""
         return self._tensor
 
     def get_metadata(self):
-        """Returns the metadata.
-        """
+        """Returns the metadata."""
         return self._metadata

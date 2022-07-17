@@ -1,5 +1,6 @@
 from mkultra.soft_prompt import SoftPrompt
 
+
 def test_tokenizer_doesnt_break_special_tokens(inference_resources):
     model, tokenizer = inference_resources
 

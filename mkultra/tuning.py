@@ -3,6 +3,7 @@ from mkultra.soft_prompt import SoftPrompt
 import torch
 import torch.nn as nn
 
+
 class GPTPromptTuningMixin:
     @classmethod
     def from_pretrained(cls, pretrained_model_name_or_path, **kwargs):
@@ -15,9 +16,10 @@ class GPTPromptTuningMixin:
 
         return model
 
-    def initialize_soft_prompt(self, n_tokens = 20):
+    def initialize_soft_prompt(self, n_tokens=20):
         self.learned_embedding = nn.parameter.Parameter(
-            self.transformer.wte.weight[:n_tokens].clone().detach())
+            self.transformer.wte.weight[:n_tokens].clone().detach()
+        )
 
     def set_soft_prompt_embeds(self, soft_prompt_embeds):
         self.learned_embedding = nn.parameter.Parameter(soft_prompt_embeds.clone().detach())
@@ -43,9 +45,7 @@ class GPTPromptTuningMixin:
 
         learned_embedding = self.transformer.drop(self.learned_embedding)
 
-        inputs_embeds = torch.cat([learned_embedding.repeat(ie.size(0), 1, 1),
-                                   ie],
-                                   dim=1)
+        inputs_embeds = torch.cat([learned_embedding.repeat(ie.size(0), 1, 1), ie], dim=1)
 
         return inputs_embeds
 
@@ -59,7 +59,7 @@ class GPTPromptTuningMixin:
 
         # Add '-100's (prevent loss calculation where the learned embed would be)
         n_batches = lb.shape[0]
-        return torch.cat([torch.full((n_batches,n_tokens), -100).to(self.device), lb], dim=1)
+        return torch.cat([torch.full((n_batches, n_tokens), -100).to(self.device), lb], dim=1)
 
     def _extend_attention_mask(self, attention_mask):
         n_tokens = self.learned_embedding.shape[-2]
@@ -70,12 +70,12 @@ class GPTPromptTuningMixin:
             am = attention_mask
 
         n_batches = am.shape[0]
-        return torch.cat([torch.full((n_batches,n_tokens), 1).to(self.device), am], dim=1)
+        return torch.cat([torch.full((n_batches, n_tokens), 1).to(self.device), am], dim=1)
 
     @torch.no_grad()
     def generate(self, *args, **kwargs):
         # This fixes CUDA for some reason
-        kwargs['input_ids'] = kwargs['input_ids'].to(self.device)
+        kwargs["input_ids"] = kwargs["input_ids"].to(self.device)
 
         return super().generate(*args, **kwargs)
 
@@ -114,13 +114,16 @@ class GPTPromptTuningMixin:
             return_dict=return_dict,
         )
 
+
 class GPT2PromptTuningLM(GPTPromptTuningMixin, GPT2LMHeadModel):
     def __init__(self, config):
         super().__init__(config)
 
+
 class GPTNeoPromptTuningLM(GPTPromptTuningMixin, GPTNeoForCausalLM):
     def __init__(self, config):
         super().__init__(config)
+
 
 class GPTJPromptTuningLM(GPTPromptTuningMixin, GPTJForCausalLM):
     def __init__(self, config):

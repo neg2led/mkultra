@@ -11,9 +11,11 @@ inf_tokenizer = GPT2SPTokenizerFast.from_pretrained("gpt2")
 tun_model = GPT2PromptTuningLM.from_pretrained("gpt2")
 tun_tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
 
+
 @pytest.fixture(scope="session", autouse=True)
 def inference_resources(request):
     return (inf_model, inf_tokenizer)
+
 
 @pytest.fixture(scope="session", autouse=True)
 def tuning_resources(request):
